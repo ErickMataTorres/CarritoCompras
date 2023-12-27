@@ -1,0 +1,50 @@
+CREATE DATABASE CarritoCompras
+USE CarritoCompras
+CREATE TABLE Usuarios
+(
+	Id INT NOT NULL PRIMARY KEY IDENTITY,
+	Nombre VARCHAR(100) NOT NULL,
+	Correo VARCHAR(100) NOT NULL,
+	Contrasena VARCHAR(20) NOT NULL
+)
+CREATE PROCEDURE spLoginUsuario
+@Correo VARCHAR(100),
+@Contrasena VARCHAR(20)
+AS
+BEGIN
+	IF EXISTS (SELECT Id FROM Usuarios WHERE Correo=@Correo)
+	BEGIN
+		IF EXISTS (SELECT Id FROM Usuarios WHERE Contrasena=@Contrasena)
+		BEGIN
+			SELECT '1' AS [Id], 'Bienvenido, ha iniciado sesión' AS [Nombre];
+		END ELSE
+			BEGIN
+				SELECT '2' AS [Id], 'Contraseña incorrecta' AS [Nombre];
+			END
+	END ELSE
+		BEGIN
+			SELECT '3' AS [Id], 'No existe el correo ingresado' AS [Nombre];
+		END
+END
+CREATE TABLE Carrito
+(
+	Id INT NOT NULL PRIMARY KEY IDENTITY,
+	UsuarioId INT NOT NULL REFERENCES Usuarios(Id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	Fecha DATETIME NOT NULL
+)
+CREATE TABLE Articulos
+(
+	Id INT NOT NULL PRIMARY KEY IDENTITY,
+	Nombre VARCHAR(100) NOT NULL,
+	Precio NUMERIC(12,2) NOT NULL,
+	Stock NUMERIC(12,2) NOT NULL
+)
+CREATE TABLE CarritoDetalle
+(
+	Id INT NOT NULL PRIMARY KEY IDENTITY,
+	CarritoId INT NOT NULL REFERENCES Carrito(Id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	ArticuloId INT NOT NULL REFERENCES Articulos(Id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	Cantidad NUMERIC(12,2) NOT NULL,
+	PrecioUnitario NUMERIC(12,2) NOT NULL,
+	Subtotal NUMERIC(12,2) NOT NULL
+)
