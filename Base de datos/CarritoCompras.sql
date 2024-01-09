@@ -1,50 +1,58 @@
 CREATE DATABASE CarritoCompras
 USE CarritoCompras
-CREATE TABLE Usuarios
+CREATE TABLE Users
 (
 	Id INT NOT NULL PRIMARY KEY IDENTITY,
-	Nombre VARCHAR(100) NOT NULL,
-	Correo VARCHAR(100) NOT NULL,
-	Contrasena VARCHAR(20) NOT NULL
+	Name VARCHAR(100) NOT NULL,
+	Email VARCHAR(100) NOT NULL,
+	Password VARCHAR(20) NOT NULL
 )
-CREATE PROCEDURE spLoginUsuario
-@Correo VARCHAR(100),
-@Contrasena VARCHAR(20)
+EXECUTE spUserLogin 'adm@outlook.com','1'
+ALTER PROCEDURE spUserLogin
+@Email VARCHAR(100),
+@Password VARCHAR(20)
 AS
 BEGIN
-	IF EXISTS (SELECT Id FROM Usuarios WHERE Correo=@Correo)
+	IF EXISTS (SELECT Id FROM Users WHERE Email=@Email)
 	BEGIN
-		IF EXISTS (SELECT Id FROM Usuarios WHERE Contrasena=@Contrasena)
+		IF EXISTS (SELECT Id FROM Users WHERE Password=@Password)
 		BEGIN
-			SELECT '1' AS [Id], 'Bienvenido, ha iniciado sesión' AS [Nombre];
+			DECLARE @Id INT SELECT @Id = Id FROM Users WHERE Email=@Email;
+			DECLARE @Name VARCHAR(100) SELECT @Name = Name FROM Users WHERE Email=@Email;
+			SELECT '1' AS [Id], 'Welcome, you are logged in|' + CONVERT(VARCHAR(20), @Id) + '|' + @Name + '|' + @Email AS [Name];
 		END ELSE
 			BEGIN
-				SELECT '2' AS [Id], 'Contraseña incorrecta' AS [Nombre];
+				SELECT '2' AS [Id], 'Incorrect password' AS [Name];
 			END
 	END ELSE
 		BEGIN
-			SELECT '3' AS [Id], 'No existe el correo ingresado' AS [Nombre];
+			SELECT '3' AS [Id], 'The email entered does not exist' AS [Name];
 		END
 END
-CREATE TABLE Carrito
+CREATE TABLE Carts
 (
 	Id INT NOT NULL PRIMARY KEY IDENTITY,
-	UsuarioId INT NOT NULL REFERENCES Usuarios(Id) ON UPDATE NO ACTION ON DELETE NO ACTION,
-	Fecha DATETIME NOT NULL
+	UserId INT NOT NULL REFERENCES Users(Id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	Date DATETIME NOT NULL
 )
-CREATE TABLE Articulos
+CREATE PROCEDURE spCarts
+AS
+BEGIN
+	SELECT * FROM Carts
+END
+CREATE TABLE Articles
 (
 	Id INT NOT NULL PRIMARY KEY IDENTITY,
-	Nombre VARCHAR(100) NOT NULL,
-	Precio NUMERIC(12,2) NOT NULL,
+	Name VARCHAR(100) NOT NULL,
+	Price NUMERIC(12,2) NOT NULL,
 	Stock NUMERIC(12,2) NOT NULL
 )
-CREATE TABLE CarritoDetalle
+CREATE TABLE CartDetails
 (
 	Id INT NOT NULL PRIMARY KEY IDENTITY,
-	CarritoId INT NOT NULL REFERENCES Carrito(Id) ON UPDATE NO ACTION ON DELETE NO ACTION,
-	ArticuloId INT NOT NULL REFERENCES Articulos(Id) ON UPDATE NO ACTION ON DELETE NO ACTION,
-	Cantidad NUMERIC(12,2) NOT NULL,
-	PrecioUnitario NUMERIC(12,2) NOT NULL,
+	CartId INT NOT NULL REFERENCES Carts(Id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	ArticleId INT NOT NULL REFERENCES Articles(Id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	Amount NUMERIC(12,2) NOT NULL,
+	UnitPrice NUMERIC(12,2) NOT NULL,
 	Subtotal NUMERIC(12,2) NOT NULL
 )

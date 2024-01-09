@@ -4,17 +4,17 @@ namespace CarritoCompras.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class UsuarioController : Controller
+    public class UsersController : Controller
     {
         public IActionResult Index()
         {
             return View();
         }
-        [HttpGet]
-        [Route("LoginUsuario")]
-        public IActionResult LoginUsuario(string correo, string contrasena)
+        [HttpPost]
+        [Route("UserLogin")]
+        public IActionResult UserLogin(Models.User c)
         {
-            string r = Models.Usuario.LoginUsuario(correo, contrasena);
+            var r = c.UserLogin();
             return Json(r);
         }
     }

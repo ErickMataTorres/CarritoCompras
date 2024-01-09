@@ -2,9 +2,9 @@
 
 namespace CarritoCompras.Models
 {
-    public class Conexion
+    public class Connection
     {
-        public static SqlConnection Conectar()
+        public static SqlConnection Connect()
         {
             string conx = "DATA SOURCE = A; INITIAL CATALOG = CarritoCompras; INTEGRATED SECURITY = YES;";
             SqlConnection s = new SqlConnection(conx);
